@@ -7,7 +7,13 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.order(params[:sort_by] || "id")
+    @all_ratings = Movie.ratings
+    @selected_ratings = (params[:ratings] || {}).keys
+    if params[:commit] == nil
+      @selected_ratings = @all_ratings
+    end
+    @movies = Movie.all(:conditions => ["rating in (?)", @selected_ratings], :order => params[:sort_by] || "id")
+    
     @title_class = 'no_hilite'
     @release_date_class = 'no_hilite'
     if params[:sort_by] == 'title'
