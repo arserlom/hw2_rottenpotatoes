@@ -8,10 +8,13 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.ratings
-    @selected_ratings = (params[:ratings] || {}).keys
+    #session.delete(:selected_ratings)
     if params[:commit] == nil
-      @selected_ratings = @all_ratings
+      @selected_ratings = session[:selected_ratings] || @all_ratings
+    else
+      @selected_ratings = (params[:ratings] || {}).keys
     end
+    session[:selected_ratings] = @selected_ratings
     @movies = Movie.all(:conditions => ["rating in (?)", @selected_ratings], :order => params[:sort_by] || "id")
     
     @title_class = 'no_hilite'
