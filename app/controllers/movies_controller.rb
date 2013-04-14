@@ -9,10 +9,10 @@ class MoviesController < ApplicationController
   def index
     @all_ratings = Movie.ratings
     #session.delete(:selected_ratings)
-    if params[:commit] == nil
-      @selected_ratings = session[:selected_ratings] || @all_ratings
+    if params[:ratings] == nil
+      redirect_to movies_path(session[:selected_ratings] || @all_ratings)
     else
-      @selected_ratings = (params[:ratings] || {}).keys
+      @selected_ratings = params[:ratings].keys
     end
     session[:selected_ratings] = @selected_ratings
     @movies = Movie.all(:conditions => ["rating in (?)", @selected_ratings], :order => params[:sort_by] || "id")
