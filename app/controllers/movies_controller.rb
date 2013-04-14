@@ -9,17 +9,28 @@ class MoviesController < ApplicationController
   def index
     @all_ratings = Movie.ratings
     #session.delete(:selected_ratings)
+    #session.delete(:sort_by)
     #debugger
-    if params[:ratings] == nil
-      redirect_to movies_path({:ratings => session[:selected_ratings] || Movie.ratings_hash})
-      return
+    new_hash = {}
+    if !params.key?(:ratings)
+      new_hash[:ratings] = session[:selected_ratings] || Movie.ratings_hash
     else
       @selected_ratings = params[:ratings].keys
+    end
+    if !params.key?(:sort_by) and session.key?(:sort_by)
+      new_hash[:sort_by] = session[:sort_by]
+    end
+    if new_hash != {}
+      redirect_to movies_path(new_hash)
+      return
     end
     selected_ratings_hash = {}
     @selected_ratings.each {|r| selected_ratings_hash[r] = '1'}
     session[:selected_ratings] = selected_ratings_hash
     @movies = Movie.all(:conditions => ["rating in (?)", @selected_ratings], :order => params[:sort_by] || "id")
+    if params.key? :sort_by
+      session[:sort_by] = params[:sort_by]
+    end
     
     @title_class = 'no_hilite'
     @release_date_class = 'no_hilite'
